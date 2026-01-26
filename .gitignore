@@ -1,0 +1,7 @@
+# Files
+db/data/*
+embedder/data/*
+
+
+# UI
+ui/.metadata
