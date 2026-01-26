@@ -41,4 +41,4 @@ ENV PATH="/app/.venv/bin:$PATH"
 EXPOSE 8088
 
 # Run the application.
-CMD ["uvicorn", "src.app:app", "--host", "0.0.0.0", "--port", "8088", "--workers", "2"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8088", "--workers", "2", "--app-dir", "./src/"]

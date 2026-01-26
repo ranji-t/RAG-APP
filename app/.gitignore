@@ -12,3 +12,4 @@ wheels/
 # Files
 notebooks/
 .env/
+data/

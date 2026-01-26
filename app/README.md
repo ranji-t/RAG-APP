@@ -1,8 +1,8 @@
-To run locally in the app dir with reload
-`uv run uvicorn src.app:app --host "localhost" --port 8088 --reload --debug`
+To run locally in the backend dir with reload
+`uv run uvicorn app:app --host "localhost" --port 8000 --env-file .env/.env.local --app-dir ./src/ --reload`
 
-To run locally in the app dir without reload
-`uv run uvicorn src.app:app --host "localhost" --port 8088`
+To run locally in the backend dir without reload
+`uv run uvicorn app:app --host "localhost" --port 8000 --env-file .env/.env.local --app-dir ./src/`
 
 To run locally in docker
-`uv run uvicorn src.app:app --host "0.0.0.0" --port 8088`
+`uv run uvicorn app:app --host "localhost" --port 8000 --app-dir ./src/`
