@@ -1,44 +1,17 @@
 # Standard Imports
-import os
 import uuid
-from contextlib import asynccontextmanager
 
 # Third Party Imports
 from fastapi import FastAPI
-from qdrant_client import QdrantClient
-from qdrant_client.async_qdrant_client import AsyncQdrantClient
-from langchain_core.documents import Document
-from langchain_ollama import OllamaEmbeddings
 from langchain_qdrant import QdrantVectorStore
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
 
 # Internal Imports
-from utils import EMBEDDING_MODEL, DEFAULT_COLLECTIONS, VECTOR_CONFIG
-
-
-# Define Lifetime for FastAPI
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """
-    Lifecycle context manager for the FastAPI application.
-    Initializes and cleans up resources like the Qdrant client and Embedder.
-    """
-    # 1. Set the states for opening app
-    app.state.embedder: OllamaEmbeddings = OllamaEmbeddings(
-        model=EMBEDDING_MODEL, base_url=os.getenv("OLLAMA_URL")
-    )
-    app.state.qd_async: AsyncQdrantClient = AsyncQdrantClient(
-        url=os.getenv("QDRANT_URL")
-    )
-    app.state.qd_sync: QdrantClient = QdrantClient(url=os.getenv("QDRANT_URL"))
-
-    # 2. Pause the programm is running
-    yield
-
-    # 3. App closing steps
-    app.state.embedder = None
-    await app.state.qd_async.close()
-    app.state.qd_sync.close()
+from app.utils import DEFAULT_COLLECTIONS
+from app.core import lifespan
+from app.services import CollectionsService, chunk_docs
 
 
 # The apps and services
@@ -92,7 +65,10 @@ async def collections() -> dict[str, list[str]]:
     # 2. Return the collections list
     return {
         "collections": [
-            col.name for col in (await qd_client.get_collections()).collections
+            col.name
+            for col in (
+                await CollectionsService.list_collections(qd_client)
+            ).collections
         ]
     }
 
@@ -105,11 +81,7 @@ async def create_collection(name: str | None = DEFAULT_COLLECTIONS):
 
     # 2. Create the collection
     collection_name = name if name is not None else DEFAULT_COLLECTIONS
-    if await qd_client.collection_exists(collection_name):
-        message = f"Collection {collection_name} already exists"
-    else:
-        await qd_client.create_collection(collection_name, vectors_config=VECTOR_CONFIG)
-        message = "Collection created"
+    message = await CollectionsService.create_collection(qd_client, collection_name)
 
     # 3. Return the message
     return {"message": message}
@@ -122,24 +94,10 @@ async def flush_collection(collection_name: str = DEFAULT_COLLECTIONS):
     qd_client = app.state.qd_async
 
     # 2. Delete the collection
-    await qd_client.delete_collection(collection_name)
+    message = await CollectionsService.delete_collection(qd_client, collection_name)
 
     # 3. Return the message
-    return {"message": "Collection deleted"}
-
-
-async def chunk_docs(page_content: str, metadata_source: str) -> list[Document]:
-    """Split the documents into chunks."""
-    # 1. Convert to Documents
-    doc = Document(page_content=page_content, metadata={"source": metadata_source})
-
-    # 2. Document chunks
-    doc_splits = RecursiveCharacterTextSplitter(
-        chunk_size=1_000, chunk_overlap=100, add_start_index=True
-    ).split_documents([doc])
-
-    # 3. Return document chunks
-    return doc_splits
+    return {"message": message}
 
 
 @app.post("/add_docs")
@@ -184,3 +142,51 @@ async def query(query: str, k: int = 5, collection_name: str = DEFAULT_COLLECTIO
 
     # 4. Return the results
     return {"results": results}
+
+
+# 1. Custom System Message: Setting the 'Ground Rules'
+system_prompt = (
+    "You are a technical assistant for a RAG application. "
+    "Use the following pieces of retrieved context to answer the question. "
+    "If you don't know the answer, just say that you don't know, don't try to make up an answer. "
+    "Keep the answer concise and professional and related to context. If the answer is not in the context, just say that you don't know."
+    "Give references to the context if the answer is in the context."
+    "\n\n"
+    "Context:\n{context}"
+)
+custom_prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", system_prompt),
+        ("human", "{question}"),
+    ]
+)
+
+
+# Helper to format docs into a single string for the prompt
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+
+@app.post("/ask")
+async def ask_question(question: str, collection_name: str = DEFAULT_COLLECTIONS):
+    # 1. Access state resources
+    sync_client = app.state.qd_sync
+    embedder = app.state.embedder
+    llm = app.state.llm  # Assuming you added llm to state
+
+    # 2. Setup the retriever
+    vecstore = QdrantVectorStore(sync_client, collection_name, embedder)
+    retriever = vecstore.as_retriever(search_kwargs={"k": 3})
+
+    # 3. Define the Chain manually using LCEL
+    rag_chain = (
+        {"context": retriever | format_docs, "question": RunnablePassthrough()}
+        | custom_prompt
+        | llm
+        | StrOutputParser()
+    )
+
+    # 4. Execute Asynchronously
+    answer = await rag_chain.ainvoke(question)
+
+    return {"answer": answer}
