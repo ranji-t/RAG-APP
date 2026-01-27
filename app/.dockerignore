@@ -43,3 +43,4 @@ notebooks/
 test/
 .env/
 data/
+.ruff_cache/

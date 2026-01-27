@@ -13,3 +13,4 @@ wheels/
 notebooks/
 .env/
 data/
+.ruff_cache/
