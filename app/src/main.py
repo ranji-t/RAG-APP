@@ -1,13 +1,27 @@
 # Third Party Imports
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 # Internal Imports
 from app.core import lifespan
 from app.api.v1 import system, collections, embed, documents, rag
+from app.utils.network import get_allowed_origins
 
 
 # The apps and services
 app = FastAPI(lifespan=lifespan, debug=True, title="The RAG backend", version="0.0.1")
+
+
+# Origins
+# Add Middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=get_allowed_origins(),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # Include the router
 app.include_router(system.router, prefix="", tags=["System"])
