@@ -1,13 +1,14 @@
 services:
   embedder:
-    image: ollama/ollama:0.15.1
     container_name: embedder_container
-    ports:
-      - 11435:11434
+    build:
+      context: ./embedder
+      dockerfile: Dockerfile
+    image: embedder_image
+    networks:
+      - backend_net
     volumes:
       - ./embedder/data:/root/.ollama
-    entrypoint: /bin/sh
-    command: -c "ollama serve & sleep 10 && ollama pull nomic-embed-text && wait"
     healthcheck:
       test: [ "CMD", "ollama", "list" ]
       interval: 1m30s
@@ -18,9 +19,8 @@ services:
   vector_db:
     image: qdrant/qdrant:latest
     container_name: vector_db_container
-    ports:
-      - 6333:6333
-      - 6334:6334
+    networks:
+      - backend_net
     volumes:
       - ./db/data:/qdrant/storage:z
 
@@ -33,6 +33,9 @@ services:
     depends_on:
       - embedder
       - vector_db
+    networks:
+      - backend_net
+      - frontend_net
     ports:
       - 8088:8088
     healthcheck:
@@ -43,3 +46,24 @@ services:
       start_period: 30s
     env_file:
       - ./app/.env/.env
+
+  frontend:
+    container_name: fultter_app
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+      args:
+        - BACKEND_URL=${BACKEND_URL}
+    image: fultter_app
+    depends_on:
+      - app
+    networks:
+      - frontend_net
+    ports:
+      - 80:80
+
+networks:
+  frontend_net:
+    driver: bridge
+  backend_net:
+    internal: true

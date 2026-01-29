@@ -40,7 +40,7 @@ Before running this application, ensure you have the following installed:
     To run the application in Chrome with experimental hot reload enable on a specific port, navigate to the UI root directory and use the following command:
 
     ```bash
-    flutter run -d chrome --web-experimental-hot-reload --web-port 58402
+    flutter run -d chrome --web-experimental-hot-reload --web-port 8888 --dart-define=BACKEND_URL=http://localhost:8000
     ```
 
 ## Application Screenshot

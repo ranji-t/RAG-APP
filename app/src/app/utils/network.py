@@ -14,7 +14,10 @@ def get_allowed_origins() -> list[str]:
         list[str]: A list of allowed origin URLs or ["*"].
     """
     # Define the keys to check in the environment
-    required_keys = ("OLLAMA_URL", "QDRANT_URL", "FLUTTER_URL")
+    required_keys = (
+        "LOCAL_URL",
+        "FLUTTER_URL",
+    )
 
     # Collect values for these keys if they exist in the environment
     urls = [val for key in required_keys if (val := os.getenv(key, None)) is not None]

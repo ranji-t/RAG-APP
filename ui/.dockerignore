@@ -93,3 +93,4 @@ windows/
 # Files
 .gitignore
 README.md
+**/.gitkeep

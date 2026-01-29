@@ -44,3 +44,4 @@ test/
 .env/
 data/
 .ruff_cache/
+**/.gitkeep

@@ -35,6 +35,10 @@ class RAGHomeScreen extends StatefulWidget {
 class _RAGHomeScreenState extends State<RAGHomeScreen> {
   // Fields of teh calss
   final TextEditingController _myController = TextEditingController();
+  final String _backendUrl = const String.fromEnvironment(
+    "BACKEND_URL",
+    defaultValue: "http://localhost:8000",
+  );
   String _answer = "";
 
   @override
@@ -57,9 +61,9 @@ class _RAGHomeScreenState extends State<RAGHomeScreen> {
       final encodedText = Uri.encodeFull(textToSend);
       // Create a URI object
       final url = Uri.parse(
-        "http://localhost:8000/rag/ask?question=$encodedText&collection_name=DEFAULT_COLLECTIONS",
+        "$_backendUrl/rag/ask?question=$encodedText&collection_name=DEFAULT_COLLECTIONS",
       );
-      print("Sending data....");
+      print("Sending data....$url");
 
       // Get response
       final response = await http.post(url);
@@ -128,7 +132,7 @@ class _RAGHomeScreenState extends State<RAGHomeScreen> {
                 foregroundColor: Colors.black,
               ),
               onPressed: sendDataOnButtonPress,
-              child: const Text("Ask you expert!!"),
+              child: const Text("Ask your expert!!"),
             ),
             // The Conditional Answer widget
             if (_answer.isNotEmpty)
