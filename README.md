@@ -1,98 +1,100 @@
-# RAG Application
+# Full-Stack RAG Application
 
-This repository contains a full-stack Retrieval-Augmented Generation (RAG) application. It features a robust Python backend using FastAPI and LangChain, a containerized vector database (Qdrant), and an embedding service (Ollama). The frontend is built with Flutter (currently a skeleton application).
+This repository contains a complete, containerized **Retrieval-Augmented Generation (RAG)** application. It combines a high-performance **FastAPI** backend with a modern **Flutter** frontend, orchestrating **Qdrant** (Vector DB) and **Ollama** (Embeddings/LLM) services.
+
+## 🏗️ Architecture
+
+The application is composed of four main services managed via Docker Compose:
+
+| Service | Directory | Description | Port (Host) | Internal Network |
+| :--- | :--- | :--- | :--- | :--- |
+| **Frontend** | `/ui` | Flutter Web application serving the user interface. | `80` | `frontend_net` |
+| **Backend** | `/app` | FastAPI service handling RAG logic and API requests. | `8088` | `frontend_net`, `backend_net` |
+| **Vector DB** | `/db` | Qdrant instance for storing document embeddings. | *Internal* | `backend_net` |
+| **Embedder** | `/embedder` | Ollama service for generating embeddings and running LLMs. | *Internal* | `backend_net` |
 
 ## 🚀 Features
 
-### Backend (`/app`)
-- **FastAPI**: High-performance, asynchronous API framework.
-- **RAG Pipeline**: Built with **LangChain**, integrating retrieval and generation.
-- **Vector Database**: Uses **Qdrant** for storing and querying vector embeddings.
-- **Embeddings**: Utilizes **Ollama** (running `nomic-embed-text`) for local embedding generation.
-- **LLM Integration**: Configured to use **OpenAI's GPT-4o** for generation.
-- **Dependency Management**: Uses `uv` for ultra-fast Python package management.
-
-### Infrastructure
-- **Dockerized Services**:
-  - **Qdrant**: Vector database running on ports `6333` (HTTP) and `6334` (GRPC).
-  - **Ollama**: Embedding service running on port `11435`.
-  - **App**: The FastAPI backend running on port `8088`.
-
-### Frontend (`/ui`)
-- **Flutter**: Cross-platform framework for building native interfaces.
-- *Note: The UI is currently a starting skeleton and is ready for development.*
+-   **Full-Stack Solution**: Ready-to-deploy architecture with Frontend, Backend, and AI services.
+-   **Production-Ready Backend**: Async FastAPI with LangChain integration.
+-   **Cross-Platform Frontend**: Flutter-based UI targeting Web (Dockerized) and Mobile/Desktop.
+-   **Private & Local**: Uses local embeddings (Ollama) and a self-hosted vector store (Qdrant).
+-   **Scalable**: Containerized Environment with isolated networks.
 
 ## 🛠️ Prerequisites
 
-Ensure you have the following installed:
-- **Docker & Docker Compose**: To run the backend services.
-- **Python 3.13+**: For local backend development.
-- **Flutter SDK**: For frontend development.
-- **Just** (Optional): For running command shortcuts (if applicable).
+-   **Docker** & **Docker Compose** (Required for the full stack).
+-   **Python 3.13+** (For local backend development).
+-   **Flutter SDK** (For local frontend development).
 
-## 🏁 Getting Started
+## 🏁 Quick Start (Docker Compose)
 
-### 1. Backend Setup (Docker)
+Get the entire application running in minutes.
 
-The easiest way to run the backend services (API, Database, Embedder) is via Docker Compose.
+### 1. Configuration
 
-1.  **Configure Environment Variables**:
-    Create a `.env` file in `app/` (or use `app/.env/.env`) based on the example in `app/README.md`.
+1.  **Root Configuration**:
+    Ensure the `.env` file in the root directory exists. It defines the URL the frontend uses to contact the backend.
     ```env
-    # Example .env configuration
-    OLLAMA_URL=http://embedder:11434
-    QDRANT_URL=http://vector_db:6333
-    OPENAI_API_KEY=your_openai_api_key_here
+    # .env
+    BACKEND_URL=http://localhost:8088
     ```
 
-2.  **Start Services**:
-    Run the following command from the root directory:
-    ```bash
-    docker compose up --build
-    ```
-    This will start:
-    -   **Ollama/Embedder**: Available at `http://localhost:11435`
-    -   **Qdrant**: Available at `http://localhost:6333`
-    -   **FastAPI Backend**: Available at `http://localhost:8088`
-
-3.  **Verify Backend**:
-    Open your browser and navigate to `http://localhost:8088/docs` to see the interactive API documentation.
-
-### 2. Frontend Setup (Flutter)
-
-To run the mobile/web application:
-
-1.  Navigate to the UI directory:
-    ```bash
-    cd ui
+2.  **Backend Configuration**:
+    The backend uses `app/.env/.env` for Docker settings. Ensure it is configured (see `app/README.md` for details).
+    ```env
+    # app/.env/.env (Example)
+    OLLAMA_URL=http://embedder_container:11434
+    QDRANT_URL=http://vector_db_container:6333
+    OPENAI_API_KEY=sk-...
     ```
 
-2.  Install dependencies:
-    ```bash
-    flutter pub get
-    ```
+### 2. Run the Stack
 
-3.  Run the application:
-    ```bash
-    flutter run
-    ```
-    *Select your target device (Chrome, Android Emulator, iOS Simulator) when prompted.*
+Execute the following from the root directory:
+
+```bash
+docker compose up --build
+```
+
+### 3. Access the Application
+
+-   **Frontend**: Open [http://localhost](http://localhost) in your browser.
+-   **Backend API**: Access documentation at [http://localhost:8088/docs](http://localhost:8088/docs).
 
 ## 📂 Project Structure
 
-```
-├── app/                # FastAPI Backend & RAG Logic
-│   ├── src/            # Source code (API, Core, Services)
-│   ├── Dockerfile      # Backend container definition
-│   └── README.md       # Detailed backend documentation
-├── db/                 # Database data (volume mount for Qdrant)
-├── embedder/           # Embedder data (volume mount for Ollama)
-├── ui/                 # Flutter Frontend application
-├── compose.yaml        # Docker Compose configuration
-└── README.md           # This file
+```plaintext
+rag-app/
+├── .env                    # Root config used by Docker Compose (Frontend build args)
+├── compose.yaml            # Main orchestration file
+├── app/                    # Backend Service
+│   ├── .env/               # Environment variables (.env & .env.local)
+│   ├── src/                # FastAPI source code
+│   └── Dockerfile          # Backend container definition
+├── ui/                     # Frontend Service
+│   ├── lib/                # Flutter source code
+│   └── Dockerfile          # Frontend container definition
+├── db/                     # Data persistence for Qdrant
+│   └── data/               # Mapped volume
+└── embedder/               # Embedder Service
+    ├── Dockerfile          # Ollama container definition
+    └── data/               # Mapped volume (models, etc.)
 ```
 
-## 📚 Documentation
+## 💻 Local Development
 
--   **Backend Details**: See [app/README.md](./app/README.md) for detailed API endpoints and development instructions.
--   **Docker Help**: See [app/README.Docker.md](./app/README.Docker.md) for specific Docker-related guides.
+If you wish to develop individual components separately:
+
+-   **Backend Development**: See [app/README.md](app/README.md)
+    *   Runs on port `8000`.
+    *   Uses `app/.env/.env.local`.
+-   **Frontend Development**: See [ui/README.md](ui/README.md)
+    *   Runs on port `8888`.
+    *   Uses `dart-define` for configuration.
+
+## 🐳 Docker Details
+
+For specific details on how the containers are built and run:
+-   **Backend Docker**: [app/README.Docker.md](app/README.Docker.md)
+-   **Frontend Docker**: [ui/README.Docker.md](ui/README.Docker.md)
