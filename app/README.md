@@ -1,123 +1,158 @@
 # RAG Application Backend
 
-This repository contains the backend for a Retrieval-Augmented Generation (RAG) application. It is built using **FastAPI** and integrates with **Qdrant** for vector storage, **Ollama** for embeddings, and **OpenAI's GPT-4o** for the Large Language Model (LLM).
+This repository houses the high-performance backend for a **Retrieval-Augmented Generation (RAG)** application. Built with **FastAPI**, it orchestrates a powerful pipeline integrating **Qdrant** for vector storage, **Ollama** for efficient embeddings, and **OpenAI's GPT-4o** for advanced language understanding.
 
-## Features
+## 🚀 Features
 
--   **FastAPI Backend**: High-performance, async API.
--   **RAG Pipeline**: Implemented using **LangChain**.
--   **Vector Database**: **Qdrant** integration for efficient similarity search.
--   **Embeddings**: Uses **Ollama** for local or remote embedding generation.
--   **LLM**: Integrated with **OpenAI GPT-4o** for answering queries.
--   **Document Management**: APIs to add, list, and query documents.
--   **Collection Management**: Create, list, and delete Qdrant collections.
--   **Dependency Management**: Uses `uv` for fast Python package management.
--   **Docker Support**: Ready for containerized deployment.
+-   **High-Performance API**: Asynchronous, scalable backend powered by **FastAPI**.
+-   **Intelligent RAG Pipeline**: Seamless integration of retrieval and generation using **LangChain**.
+-   **Vector Search**: **Qdrant** integration for lightning-fast similarity searches.
+-   **Flexible Embeddings**: Utilizes **Ollama** for local or remote embedding generation.
+-   **Advanced LLM Support**: Harnesses **OpenAI GPT-4o** for high-quality responses.
+-   **Document Management**: robust APIs to chunk, embed, and store documents.
+-   **Collection Management**: Dynamic control over Qdrant collections.
+-   **Modern Tooling**: Managed with `uv` for lightning-fast dependency resolution.
+-   **Docker Ready**: Full containerization support.
 
-## Tech Stack
+## 🛠️ Tech Stack
 
--   **Language**: Python >= 3.13
--   **Web Framework**: FastAPI, Uvicorn
--   **RAG Framework**: LangChain
--   **Vector Store**: Qdrant
--   **Embeddings**: Ollama
--   **AI Model**: OpenAI GPT-4o
+| Component | Technology | Description |
+| :--- | :--- | :--- |
+| **Language** | Python 3.13+ | The core programming language. |
+| **Framework** | FastAPI | Modern, fast web framework for building APIs. |
+| **Vector Store** | Qdrant | Vector similarity search engine. |
+| **Embeddings** | Ollama | Local LLM and embedding runner. |
+| **LLM** | OpenAI GPT-4o | State-of-the-art language model. |
+| **Orchestration** | LangChain | Framework for developing applications powered by LLMs. |
 
-## Prerequisites
+## 📋 Prerequisites
 
-Before running the application, ensure you have the following installed:
+Ensure you have the following ready before starting:
 
-1.  **Python** (>= 3.13)
-2.  **uv** (Python package manager)
-3.  **Qdrant** instance (running locally or remotely)
-4.  **Ollama** instance (running locally or remotely)
-5.  **OpenAI API Key**
+1.  **Python 3.13+** installed.
+2.  **uv** package manager installed (`pip install uv` or via other methods).
+3.  **Qdrant** instance running (Local Docker or Cloud).
+4.  **Ollama** instance running.
+5.  **OpenAI API Key**.
 
-## Environment Variables
+## ⚡ Quick Start
 
-Create a `.env` file (or use `.env/.env.local`) with the following variables:
+### 1. Clone the Repository
 
-```env
-OLLAMA_URL=http://localhost:11434  # URL of your Ollama instance
-QDRANT_URL=http://localhost:6333   # URL of your Qdrant instance
-OPENAI_API_KEY=sk-...              # Your OpenAI API Key
+```bash
+git clone <repository_url>
+cd RAG_App/app
 ```
 
-## Installation
+### 2. Configure Environment
 
-1.  Clone the repository:
-    ```bash
-    git clone <repository_url>
-    cd RAG_App/app
-    ```
+The environment variables are managed in the `.env/` directory:
 
-2.  Install dependencies using `uv`:
-    ```bash
-    uv sync
-    ```
+-   **`.env/.env.local`**: For **local development**.
+-   **`.env/.env`**: For **Docker/Production** (configured for service-to-service communication).
 
-## Running the Application
+**Example `.env/.env.local` (Local):**
+```env
+OLLAMA_URL=http://localhost:11435
+QDRANT_URL=http://localhost:6333
+FLUTTER_URL=http://localhost:8888
+OPENAI_API_KEY=sk-...
+```
 
-### Locally
+**Example `.env/.env` (Docker):**
+```env
+OLLAMA_URL=http://embedder_container:11434
+QDRANT_URL=http://vector_db_container:6333
+FLUTTER_URL=http://localhost:80
+LOCAL_URL=http://localhost
+OPENAI_API_KEY=sk-...
+```
 
-To run the backend locally with hot-reloading (for development):
+### 3. Install Dependencies
+
+Use `uv` to sync dependencies instantly:
+
+```bash
+uv sync
+```
+
+### 4. Run the Application
+
+#### 🖥️ Local Development (Hot Reload)
+
+Runs on port `8000` by default.
 
 ```bash
 uv run uvicorn main:app --host "localhost" --port 8000 --env-file .env/.env.local --app-dir ./src/ --reload
 ```
 
-To run locally without reload:
+#### 🐳 Docker Container
 
+The Docker image is optimized for production and exposes port `8088`.
+
+Build the image:
 ```bash
-uv run uvicorn main:app --host "localhost" --port 8000 --env-file .env/.env.local --app-dir ./src/
+docker build -t rag-backend .
 ```
 
-### With Docker
-
-To run the application using Docker:
-
+Run the container:
 ```bash
-uv run uvicorn main:app --host "localhost" --port 8000 --app-dir ./src/
+```bash
+docker run -p 8088:8088 --env-file .env/.env rag-backend
 ```
 
-*(Note: Ensure your Docker container is configured to access the necessary services like Qdrant and Ollama).*
+**Note on Connectivity:**
+If your Qdrant or Ollama services are running on the host machine (localhost):
+-   **Mac/Windows**: Use `OLLAMA_URL=http://host.docker.internal:11434` in your `.env`.
+-   **Linux**: Add `--add-host=host.docker.internal:host-gateway` to the `docker run` command.
 
-## API Endpoints
+## 🔌 API Endpoints
 
-The API is structured into several routers under `v1`:
+The API is versioned (`v1`) and organized by resource. You can explore the interactive docs at `/docs`.
 
 ### System
--   `GET /`: Health check or welcome message (if implemented).
+-   `GET /` - Welcome message.
+-   `GET /health` - Health check status.
 
 ### Collections (`/collections`)
--   `GET /collections`: List all Qdrant collections.
--   `POST /collections`: Create a new collection.
--   `DELETE /collections`: Delete a collection.
+-   `GET /collections` - List all available Qdrant collections.
+-   `POST /collections` - Create a new collection.
+-   `DELETE /collections` - Delete an existing collection.
 
 ### Documents (`/documents`)
--   `POST /documents/add`: Add text content to the vector store (chunks and embeds automatically).
--   `POST /documents/query`: Perform a similarity search on stored documents.
+-   `POST /documents/add` - Process, chunk, and store a document.
+-   `POST /documents/query` - Perform a similarity search against stored documents.
 
 ### Embeddings (`/embed`)
--   `GET /embed`: Embed a single query string.
--   `POST /embed`: Embed multiple text strings.
+-   `GET /embed` - Generate an embedding for a single text query.
+-   `POST /embed` - Generate embeddings for a list of texts.
 
 ### RAG (`/rag`)
--   `POST /rag/ask`: Ask a question. Retrieves relevant context from the vector store and uses GPT-4o to generate an answer.
+-   `POST /rag/ask` - The core RAG endpoint. Retrieves context and answers a question using GPT-4o.
 
-## Project Structure
+## 📂 Project Structure
 
-```
-├── .env                # Environment variables
-├── data/               # Data storage (if applicable)
-├── notebooks/          # Jupyter notebooks for experimentation
+```plaintext
+app/
+├── .env/                 # Environment configuration (Directory)
+├── Dockerfile            # Container definition
+├── pyproject.toml        # Project dependencies & config
+├── README.md             # Documentation
+├── README.Docker.md      # Extended Docker instructions
 ├── src/
-│   ├── app/
-│   │   ├── api/        # API route handlers
-│   │   ├── core/       # App configuration and lifecycle
-│   │   ├── services/   # Business logic (RAG, Collections, etc.)
-│   │   └── utils/      # Utility functions
-│   └── main.py         # Application entry point
-├── pyproject.toml      # Project dependencies (uv)
-└── README.md           # Project documentation
+│   ├── main.py           # App entry point
+│   └── app/
+│       ├── api/          # Route handlers (v1/)
+│       ├── core/         # Lifespan & Config
+│       ├── services/     # Business logic (RAG, Collections)
+│       └── utils/        # Constants, Loaders, Network helpers
+```
+
+## 🧪 Development
+
+This project uses `ruff` for linting and formatting.
+
+```bash
+uv run ruff check .
+uv run ruff format .
 ```

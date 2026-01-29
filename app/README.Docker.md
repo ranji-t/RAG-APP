@@ -21,10 +21,10 @@ The application runs on port **8088** inside the container (defined in `Dockerfi
 
 ### 1. Basic Run
 
-If you have a `.env` file with your configuration, you can pass it to the container using the `--env-file` flag.
+If you have the production configuration file (`.env/.env`), you can pass it to the container using the `--env-file` flag.
 
 ```bash
-docker run -p 8088:8088 --env-file .env rag-backend
+docker run -p 8088:8088 --env-file .env/.env rag-backend
 ```
 
 ### 2. Passing Environment Variables Manually
@@ -50,7 +50,7 @@ Example for Linux:
 ```bash
 docker run -p 8088:8088 \
   --add-host=host.docker.internal:host-gateway \
-  --env-file .env \
+  --env-file .env/.env \
   rag-backend
 ```
 
