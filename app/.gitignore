@@ -11,6 +11,9 @@ wheels/
 
 # Files
 notebooks/
-.env/
+.env/*
 data/
 .ruff_cache/
+
+# The Git Keep Trick
+!.gitkeep

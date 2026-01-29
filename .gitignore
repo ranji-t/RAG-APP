@@ -5,3 +5,8 @@ embedder/data/*
 
 # UI
 ui/.metadata
+.env/*
+
+
+# The Git Keep Trick
+!.gitkeep
