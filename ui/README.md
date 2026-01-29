@@ -1,67 +1,86 @@
 # RAG Assistant UI
 
-A Flutter-based frontend for the RAG (Retrieval-Augmented Generation) Assistant application. This user interface interacts with a backend API to allow users to ask questions and receive AI-generated answers based on a knowledge base.
+A sleek, **Flutter-based frontend** for the **Retrieval-Augmented Generation (RAG) Assistant**. This interface allows users to seamlessly interact with knowledge bases by asking questions and receiving AI-generated answers in real-time.
 
-## Features
+## ✨ Features
 
-*   **Clean Interface:** A dark-themed, user-friendly interface powered by Flutter's Material Design.
-*   **Query Input:** A large, expandable text field for entering detailed questions.
-*   **Real-time Interaction:** Sends queries to a backend server and asynchronously awaits the response.
-*   **Response Display:** Clearly displays the AI's answer in a highlighted container once received.
-*   **Cross-Platform:** Built with Flutter, capable of running on Web, Windows, macOS, Linux, Android, and iOS.
+-   **Modern UI**: A clean, dark-themed interface built with **Material Design 3**.
+-   **Chat Interface**: Conversational entry for detailed queries.
+-   **Real-time RAG**: Asynchronous communication with the backend for streaming-like responses.
+-   **Cross-Platform**: Optimized for **Web**, but capable of running on Windows, macOS, Linux, Android, and iOS.
+-   **Dynamic Configuration**: Backend URL can be configured at build/runtime.
 
-## Prerequisites
+## 🛠️ Tech Stack
 
-Before running this application, ensure you have the following installed:
+-   **Framework**: Flutter (Dart)
+-   **Networking**: `http` package
+-   **Architecture**: Clean functional component widget structure.
 
-*   [Flutter SDK](https://docs.flutter.dev/get-started/install) (Version 3.10.7 or higher recommended)
-*   A running instance of the RAG Backend (FastAPI).
-    *   **Note:** The app expects the backend to be running at `http://localhost:8000`.
+## 📋 Prerequisites
 
-## Installation
+-   **Flutter SDK**: [Install Flutter](https://docs.flutter.dev/get-started/install) (Version 3.10.7+).
+-   **RAG Backend**: Ensure the FastAPI backend is running.
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <your-repository-url>
-    cd RAG_App/ui
-    ```
+## 🚀 Quick Start
 
-2.  **Install dependencies:**
-    ```bash
-    flutter pub get
-    ```
+### 1. Clone the Repository
 
-## Usage
-
-1.  **Start the Backend:**
-    Ensure your FastAPI backend is running locally on port 8000.
-
-2.  **Run the App:**
-    To run the application in Chrome with experimental hot reload enable on a specific port, navigate to the UI root directory and use the following command:
-
-    ```bash
-    flutter run -d chrome --web-experimental-hot-reload --web-port 8888 --dart-define=BACKEND_URL=http://localhost:8000
-    ```
-
-## Application Screenshot
-
-Here is a preview of the RAG Assistant UI in action:
-
-
-
-## Configuration
-
-The API endpoint is currently hardcoded in `lib/main.dart`:
-
-```dart
-final url = Uri.parse(
-  "http://localhost:8000/rag/ask?question=$encodedText&collection_name=DEFAULT_COLLECTIONS",
-);
+```bash
+git clone <your-repository-url>
+cd RAG_App/ui
 ```
 
-If your backend is running on a different host or port, please update this URL in `_RAGHomeScreenState.sendDataOnButtonPress`.
+### 2. Install Dependencies
 
-## Project Structure
+```bash
+flutter pub get
+```
 
-*   `lib/main.dart`: The main entry point and UI logic for the application.
-*   `pubspec.yaml`: Project metadata and dependencies.
+### 3. Run the Application
+
+You can run the application targeting different platforms. The default setup is optimized for **Chrome**.
+
+#### 🖥️ Web Development (Recommended)
+
+Run on port **8888** with the backend URL configured:
+
+```bash
+flutter run -d chrome --web-port 8888 --dart-define=BACKEND_URL=http://localhost:8000
+```
+
+> **Note**: `http://localhost:8000` is the default backend address. Update it if your backend is hosted elsewhere.
+
+#### 🐳 Docker
+
+To run the UI in a container (served via Nginx):
+
+```bash
+docker build -t rag-frontend .
+docker run -p 80:80 -e BACKEND_URL=http://localhost:8088 rag-frontend
+```
+
+## ⚙️ Configuration
+
+The application uses `dart-define` to inject environment variables at compile time.
+
+-   **`BACKEND_URL`**: The base URL of the RAG backend API (e.g., `http://localhost:8000`).
+
+If not provided, it defaults to `http://localhost:8000` inside `lib/main.dart` (ensure your codebase reflects this logic).
+
+## 📂 Project Structure
+
+```plaintext
+ui/
+├── android/            # Android native code
+├── ios/                # iOS native code
+├── lib/
+│   └── main.dart       # Main entry point and UI logic
+├── test/               # Unit and widget tests
+├── web/                # Web entry point
+├── pubspec.yaml        # Dependencies (http, cupertino_icons)
+└── Dockerfile          # Production Docker build
+```
+
+## 📸 Screenshots
+
+*(Add screenshots here to showcase the UI)*
