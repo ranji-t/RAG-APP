@@ -45,3 +45,4 @@ test/
 data/
 .ruff_cache/
 **/.gitkeep
+mypy_cache/
