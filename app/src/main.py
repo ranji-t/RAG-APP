@@ -9,7 +9,13 @@ from app.utils.network import get_allowed_origins
 
 
 # The apps and services
-app = FastAPI(lifespan=lifespan, debug=True, title="The RAG backend", version="0.0.1")
+app = FastAPI(
+    root_path="/api",
+    lifespan=lifespan,
+    debug=True,
+    title="The RAG backend",
+    version="0.0.1",
+)
 
 
 # Origins
