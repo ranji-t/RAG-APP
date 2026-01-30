@@ -14,7 +14,7 @@ notebooks/
 .env/*
 data/
 .ruff_cache/
-mypy_cache/
+.mypy_cache/
 
 # The Git Keep Trick
 !.gitkeep
