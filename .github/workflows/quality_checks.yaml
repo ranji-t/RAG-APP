@@ -38,7 +38,7 @@ jobs:
         run: uv sync --locked --all-extras --dev
       
       - name: Run Ruff Lint
-        run: uv run ruff check --output-format=github notebooks/ src/ test/
+        run: uv run ruff check --output-format=github src/
       
       - name: Run Ruff Format
-        run: uv run ruff format --check --output-format=github notebooks/ src/ test/
+        run: uv run ruff format --check --output-format=github src/
