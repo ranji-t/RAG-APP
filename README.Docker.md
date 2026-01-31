@@ -14,6 +14,36 @@ The `compose.yaml` defines four interacting services:
 | **Embedder** | `embedder_container` | Ollama service hosting the embedding model. | `backend_net` |
 
 ### Networking
+```mermaid
+graph TD
+    Client[User / Browser] -->|HTTP :80| Nginx[NGINX Reverse Proxy]
+
+    %% Public Edge
+    subgraph "Public Network (Edge)"
+        Nginx
+    end
+
+    %% API Layer
+    subgraph "API Network (Internal)"
+        Nginx -->|Allow-listed: /api/rag/ask| API[FastAPI Backend]
+        Nginx -.->|Blocked: /api/docs, /api/*| BlockedAPI((404))
+    end
+
+    %% Backend Services
+    subgraph "Backend Network (Internal)"
+        API -->|Vector Search| Qdrant[Qdrant Vector DB]
+        API -->|Embeddings / Inference| Ollama[Ollama]
+    end
+
+    %% Controlled Egress
+    subgraph "Controlled Egress Network"
+        API -->|Outbound HTTPS| Internet[OpenAI / External APIs]
+    end
+
+    %% Explicit Denials
+    Qdrant -.->|No Internet Access| BlockedNet((X))
+    Ollama -.->|No Internet Access| BlockedNet
+```
 -   **`backend_net`**: An **internal** network. The Embedder and Vector DB are isolated here; they cannot be accessed directly by the Frontend or the outside world (except via mapped ports if specified, but in this setup, they are internal to the backend).
 -   **`frontend_net`**: Connecting the Frontend and Backend.
 
@@ -77,3 +107,4 @@ If a service fails to start, check the logs (`docker compose logs <service>`) to
 
 -   **"Connection Refused" on Frontend**: Ensure `BACKEND_URL` in the root `.env` matches the port exposed by the `app` service (default: `8088`).
 -   **Ollama/Qdrant not found**: Ensure the `app/.env/.env` uses the container names (e.g., `http://embedder_container:11434`) and not `localhost`.
+

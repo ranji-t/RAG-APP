@@ -137,8 +137,10 @@ app/
 ├── .env/                 # Environment configuration (Directory)
 ├── Dockerfile            # Container definition
 ├── pyproject.toml        # Project dependencies & config
+├── uv.lock               # Dependency lock file
 ├── README.md             # Documentation
 ├── README.Docker.md      # Extended Docker instructions
+├── notebooks/            # Jupyter notebooks for experiments
 ├── src/
 │   ├── main.py           # App entry point
 │   └── app/
@@ -146,13 +148,15 @@ app/
 │       ├── core/         # Lifespan & Config
 │       ├── services/     # Business logic (RAG, Collections)
 │       └── utils/        # Constants, Loaders, Network helpers
+└── test/                 # Test suite
 ```
 
 ## 🧪 Development
 
-This project uses `ruff` for linting and formatting.
+This project uses `ruff` for linting/formatting and `mypy` for static type checking.
 
 ```bash
 uv run ruff check .
 uv run ruff format .
+uv run mypy src/
 ```
