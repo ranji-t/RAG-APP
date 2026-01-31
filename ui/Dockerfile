@@ -46,7 +46,7 @@ FROM nginx:alpine AS runner
 
 # Copy the built artifacts from the builder stage to the Nginx html directory
 COPY --from=builder /app/build/web /usr/share/nginx/html
-
+COPY config/nginx.conf /etc/nginx/
 # Expose port 80 for the web server
 EXPOSE 80
 

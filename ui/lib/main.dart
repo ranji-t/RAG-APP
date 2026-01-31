@@ -61,7 +61,7 @@ class _RAGHomeScreenState extends State<RAGHomeScreen> {
       final encodedText = Uri.encodeFull(textToSend);
       // Create a URI object
       final url = Uri.parse(
-        "$_backendUrl/rag/ask?question=$encodedText&collection_name=DEFAULT_COLLECTIONS",
+        "$_backendUrl/api/rag/ask?question=$encodedText&collection_name=DEFAULT_COLLECTIONS",
       );
       print("Sending data....$url");
 
