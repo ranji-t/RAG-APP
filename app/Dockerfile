@@ -37,8 +37,5 @@ RUN uv sync --locked --no-dev
 USER appuser
 ENV PATH="/app/.venv/bin:$PATH"
 
-# Expose the port that the application listens on.
-EXPOSE 8088
-
 # Run the application.
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8088", "--workers", "2", "--app-dir", "./src/"]

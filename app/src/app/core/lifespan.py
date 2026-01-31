@@ -20,14 +20,12 @@ async def lifespan(app: FastAPI):
     Initializes and cleans up resources like the Qdrant client and Embedder.
     """
     # 1. Set the states for opening app
-    app.state.embedder: OllamaEmbeddings = OllamaEmbeddings(
+    app.state.embedder = OllamaEmbeddings(
         model=EMBEDDING_MODEL, base_url=os.getenv("OLLAMA_URL")
     )
-    app.state.qd_async: AsyncQdrantClient = AsyncQdrantClient(
-        url=os.getenv("QDRANT_URL")
-    )
-    app.state.qd_sync: QdrantClient = QdrantClient(url=os.getenv("QDRANT_URL"))
-    app.state.llm = ChatOpenAI(model="gpt-4o", api_key=os.getenv("OPENAI_API_KEY"))
+    app.state.qd_async = AsyncQdrantClient(url=os.getenv("QDRANT_URL"))
+    app.state.qd_sync = QdrantClient(url=os.getenv("QDRANT_URL"))
+    app.state.llm = ChatOpenAI(model="gpt-4o", api_key=os.getenv("OPENAI_API_KEY"))  # type: ignore
 
     # 2. Pause the programm is running
     yield
