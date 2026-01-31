@@ -79,6 +79,7 @@ ui/
 ├── test/               # Unit and widget tests
 ├── web/                # Web entry point
 ├── pubspec.yaml        # Dependencies (http, cupertino_icons)
+├── README.Docker.md    # Extended Docker instructions
 └── Dockerfile          # Production Docker build
 ```
 

@@ -137,6 +137,7 @@ app/
 ├── .env/                 # Environment configuration (Directory)
 ├── Dockerfile            # Container definition
 ├── pyproject.toml        # Project dependencies & config
+├── uv.lock               # Dependency lock file
 ├── README.md             # Documentation
 ├── README.Docker.md      # Extended Docker instructions
 ├── notebooks/            # Jupyter notebooks for experiments

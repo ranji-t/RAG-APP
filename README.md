@@ -8,10 +8,90 @@ The application is composed of four main services managed via Docker Compose:
 
 | Service | Directory | Description | Port (Host) | Internal Network |
 | :--- | :--- | :--- | :--- | :--- |
-| **Frontend** | `/ui` | Flutter Web application serving the user interface. | `80` | `frontend_net` |
-| **Backend** | `/app` | FastAPI service handling RAG logic and API requests. | `8088` | `frontend_net`, `backend_net` |
+| **Frontend** | `/ui` | Flutter Web application serving the user interface. | `80` | `frontend_net`, `api_net` |
+| **Backend** | `/app` | FastAPI service handling RAG logic and API requests. | *Internal Only* | `api_net`, `backend_net`, `llm_net` |
 | **Vector DB** | `/db` | Qdrant instance for storing document embeddings. | *Internal* | `backend_net` |
 | **Embedder** | `/embedder` | Ollama service for generating embeddings and running LLMs. | *Internal* | `backend_net` |
+
+### Networking
+
+```mermaid
+graph TD
+    Client[User / Browser] -->|HTTP :80| Nginx[NGINX Reverse Proxy]
+
+    %% Public Edge
+    subgraph PublicNet ["Public Network (Edge)"]
+        Nginx
+    end
+
+    %% API Layer
+    subgraph ApiNet ["API Network (Internal)"]
+        Nginx -->|Allow-listed: /api/rag/ask| API[FastAPI Backend]
+        Nginx -.->|Blocked: /api/docs, /api/*| BlockedAPI((404))
+    end
+
+    %% Backend Services
+    subgraph BackendNet ["Backend Network (Internal)"]
+        API -->|Vector Search| Qdrant[Qdrant Vector DB]
+        API -->|Embeddings / Inference| Ollama[Ollama]
+    end
+
+    %% Controlled Egress
+    subgraph EgressNet ["Controlled Egress Network"]
+        API -->|Outbound HTTPS| Internet[OpenAI / External APIs]
+    end
+
+    %% Explicit Denials
+    Qdrant -.->|No Internet Access| BlockedNet((X))
+    Ollama -.->|No Internet Access| BlockedNet
+
+    %% NETWORK BOX STYLING
+    style PublicNet fill:transparent,stroke:#4caf50,stroke-width:2px
+    style ApiNet fill:transparent,stroke:#f44336,stroke-width:2px
+    style BackendNet fill:transparent,stroke:#f44336,stroke-width:2px
+    style EgressNet fill:transparent,stroke:#ff9800,stroke-width:2px,stroke-dasharray: 5 5
+
+    %% BLOCKED NODES STYLING
+    classDef blocked stroke:#9c27b0,stroke-width:2px;
+    class BlockedAPI,BlockedNet blocked;
+
+    %% CONTAINER GROUPS
+    classDef service stroke:#2196f3,stroke-width:2px;
+    classDef data stroke:#009688,stroke-width:2px;
+    classDef external stroke:#607d8b,stroke-width:2px,stroke-dasharray: 5 5;
+
+    class Nginx,API service;
+    class Qdrant,Ollama data;
+    class Client,Internet external;
+```
+
+### 🔐 Security Architecture & Visualization
+
+The architecture diagram above uses a comprehensive color-coding scheme to represent security zones and component roles. This visual strategy ensures instant recognition of trust boundaries.
+
+**Color Legend & Rationale**
+
+| Scope | Color | Meaning | Rationale |
+| :--- | :--- | :--- | :--- |
+| **Public Zone** | **Green** | Publicly Accessible | Safe entry point for user traffic (Edge). |
+| **Private Zone** | **Red** | **High Security** | Strictly internal. No direct external access allowed to protect critical data (`Qdrant`) and logic (`Ollama`). |
+| **Egress Zone** | **Orange** | Controlled Access | Outbound-only traffic channel to specific external services (e.g., OpenAI). |
+| **Services** | **Blue** | Compute Logic | Stateless containers processing requests (`Nginx`, `API`). |
+| **Data / AI** | **Teal** | State & Models | Critical assets requiring the highest level of protection and persistence. |
+| **External** | **Grey** | Untrusted | Entities outside our infrastructure control (`User`, `Internet`). |
+| **Blocked** | **Purple** | **Access Denied** | Explicitly blocked paths (e.g., direct DB access or sensitive API docs exposure). |
+
+### 🛡️ Network Policy Reference
+-   **Isolation by Design**: By placing the Database and LLM in the **Red** `backend_net`, we cryptographically guarantee they cannot be reached by the `Frontend` or the `Public` internet.
+-   **Reverse Proxy Control**: `Nginx` (**Green**) acts as the only gatekeeper, allowing only specific routes (e.g., `/api/rag/ask`) while blocking sensitive endpoints (`/docs`, `/metrics`).
+
+### 🐳 Docker Networks Explained
+A **Docker Network** is a virtual, software-defined channel that allows specific containers to communicate while isolating them from others. We use separate networks to strictly limit the "blast radius" of any potential breach.
+
+-   **`frontend_net`**: Bridged network connecting the host/user to the Frontend container.
+-   **`api_net`**: Internal network connecting the Nginx proxy to the Backend API.
+-   **`backend_net`**: Deeply isolated internal network for Backend <-> DB/Embedder communication.
+-   **`llm_net`**: Dedicated bridge network for external LLM connectivity.
 
 ## 🚀 Features
 
