@@ -67,12 +67,18 @@ docker compose up --build
 ```plaintext
 rag-app/
 ├── .env                    # Root config used by Docker Compose (Frontend build args)
+├── .github/                # CI/CD Workflows
 ├── compose.yaml            # Main orchestration file
+├── README.Docker.md        # Extended Docker instructions
 ├── app/                    # Backend Service
 │   ├── .env/               # Environment variables (.env & .env.local)
+│   ├── notebooks/          # Jupyter notebooks
 │   ├── src/                # FastAPI source code
-│   └── Dockerfile          # Backend container definition
+│   ├── test/               # Test suite
+│   ├── Dockerfile          # Backend container definition
+│   └── uv.lock             # Dependency lock file
 ├── ui/                     # Frontend Service
+│   ├── config/             # Nginx configuration
 │   ├── lib/                # Flutter source code
 │   └── Dockerfile          # Frontend container definition
 ├── db/                     # Data persistence for Qdrant

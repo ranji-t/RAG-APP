@@ -72,6 +72,7 @@ If not provided, it defaults to `http://localhost:8000` inside `lib/main.dart` (
 ```plaintext
 ui/
 ├── android/            # Android native code
+├── config/             # Nginx configuration (nginx.conf)
 ├── ios/                # iOS native code
 ├── lib/
 │   └── main.dart       # Main entry point and UI logic
