@@ -28,3 +28,10 @@ dev = [
     "ruff>=0.14.14",
     "types-aiofiles>=25.1.0.20251011",
 ]
+tuning = [
+    "accelerate>=1.1.0",
+    "datasets>=4.5.0",
+    "einops>=0.8.2",
+    "mlflow>=3.9.0",
+    "sentence-transformers>=5.2.2",
+]
