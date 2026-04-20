@@ -2,6 +2,8 @@
 db/data/*
 embedder/data/*
 
+# Folders
+.claude/worktrees/*
 
 # UI
 ui/.metadata
